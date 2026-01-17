@@ -19,27 +19,14 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
-      # 1. ADIM: Base64 kodunu çözüp dosyaya yazıyoruz
+      # 1. Base64 Private Key'i çöz ve dosyaya yaz
       - name: Create Key File
         run: |
           echo "${{ secrets.OCI_PRIVATE_KEY }}" | base64 --decode > oci_api_key.pem
           chmod 600 oci_api_key.pem
 
-      # 2. ADIM (YENİ): Anahtar dosyasının doğru oluşup oluşmadığını kontrol ediyoruz
-      # Merak etme, sadece ilk/son satırı ve satır sayısını gösterir, güvenlidir.
-      - name: Debug Key File
-        run: |
-          ls -l oci_api_key.pem
-          echo "First line:"
-          head -n 1 oci_api_key.pem
-          echo "Last line:"
-          tail -n 1 oci_api_key.pem
-          echo "Line count:"
-          wc -l oci_api_key.pem
-
       - name: Run Bot
         env:
-          OCI_SHAPE: "VM.Standard.A1.Flex"
           OCI_USER_ID: ${{ secrets.OCI_USER_ID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_ID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_KEY_FINGERPRINT }}
@@ -47,10 +34,15 @@ jobs:
           OCI_PRIVATE_KEY_FILENAME: "oci_api_key.pem"
           OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID }}
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
-          OCI_OCPUS: ${{ secrets.OCI_OCPUS }}
-          OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS }}
           OCI_AVAILABILITY_DOMAIN: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
           OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          
+          # --- KRİTİK AYARLAR ---
+          OCI_SHAPE: "VM.Standard.A1.Flex"
+          # Aşağıdaki ikisi olmadan "Invalid shape config" hatası alırsın:
+          OCI_OCPUS: ${{ secrets.OCI_OCPUS }}
+          OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS }}
+          
         run: php index.php
