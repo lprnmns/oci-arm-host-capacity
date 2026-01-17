@@ -19,11 +19,23 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
-      # GÜNCELLENEN ADIM: Base64 decode yöntemi (En güvenli yöntem)
+      # 1. ADIM: Base64 kodunu çözüp dosyaya yazıyoruz
       - name: Create Key File
         run: |
           echo "${{ secrets.OCI_PRIVATE_KEY }}" | base64 --decode > oci_api_key.pem
           chmod 600 oci_api_key.pem
+
+      # 2. ADIM (YENİ): Anahtar dosyasının doğru oluşup oluşmadığını kontrol ediyoruz
+      # Merak etme, sadece ilk/son satırı ve satır sayısını gösterir, güvenlidir.
+      - name: Debug Key File
+        run: |
+          ls -l oci_api_key.pem
+          echo "First line:"
+          head -n 1 oci_api_key.pem
+          echo "Last line:"
+          tail -n 1 oci_api_key.pem
+          echo "Line count:"
+          wc -l oci_api_key.pem
 
       - name: Run Bot
         env:
@@ -31,7 +43,6 @@ jobs:
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_ID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_KEY_FINGERPRINT }}
           OCI_REGION: ${{ secrets.OCI_REGION }}
-          # Dosya adını belirtiyoruz
           OCI_PRIVATE_KEY_FILENAME: "oci_api_key.pem"
           OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID }}
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
