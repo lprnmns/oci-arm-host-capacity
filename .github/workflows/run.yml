@@ -39,6 +39,7 @@ jobs:
 
       - name: Run Bot
         env:
+          OCI_SHAPE: "VM.Standard.A1.Flex"
           OCI_USER_ID: ${{ secrets.OCI_USER_ID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_ID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_KEY_FINGERPRINT }}
