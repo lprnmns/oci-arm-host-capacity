@@ -19,10 +19,10 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
-      # GÜNCELLENEN ADIM: echo yerine printf kullanıldı
+      # GÜNCELLENEN ADIM: Base64 decode yöntemi (En güvenli yöntem)
       - name: Create Key File
         run: |
-          printf "%s" "${{ secrets.OCI_PRIVATE_KEY }}" > oci_api_key.pem
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" | base64 --decode > oci_api_key.pem
           chmod 600 oci_api_key.pem
 
       - name: Run Bot
